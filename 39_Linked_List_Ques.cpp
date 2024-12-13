@@ -1,4 +1,5 @@
 #include<iostream>
+#include<map>
 using namespace std;
 
 class Node {
@@ -75,6 +76,80 @@ void print(Node* head) {
     cout << endl;
 }
 
+bool detectLoop(Node* head) {
+    if(head == NULL) {
+        return false;
+    }
+
+    map<Node*, bool> visited;
+
+    Node* temp = head;
+
+    while(temp!=NULL){
+        if(visited[temp] == true){
+            cout << "Present on element " << temp -> data << endl;
+            return true;
+        }
+        visited[temp] = true;
+        temp = temp -> next;
+    }
+    return false;
+}
+
+// floyd detect loop
+Node* floydDetectLoop(Node* head) {
+    if(head == NULL)
+        return NULL;
+    
+    Node* slow = head;
+    Node* fast = head;
+
+    while(slow != NULL && fast != NULL){
+        fast = fast -> next;
+        if(fast != NULL) {
+            fast = fast -> next;
+        }
+
+        slow = slow -> next;
+
+        if(slow == fast){
+            cout << "Present at " << slow->data << endl;
+            return slow;
+        }
+    }
+    return NULL;
+}
+
+Node* getStartingNode(Node* head) {
+    if(head == NULL){
+        return NULL;
+    }
+
+    Node* intersection = floydDetectLoop(head);
+    Node* slow = head;
+
+    while(slow != intersection){
+        slow = slow -> next;
+        intersection = intersection -> next;
+    }
+    return slow;
+}
+
+void removeLoop(Node* head) {
+    if(head == NULL)
+        return;
+    
+    Node* startOfLoop = getStartingNode(head);
+
+    Node* temp = startOfLoop;
+
+    while(temp -> next != startOfLoop) {
+        temp = temp -> next;
+    }
+
+    temp -> next = NULL;
+}
+
 int main() {
     Node* node1 = new Node(10);
     Node* head = node1;
@@ -85,8 +160,10 @@ int main() {
     insertAtTail(tail, 19);
     insertAtTail(tail, 20);
 
+
     cout << "Linked List: ";
     print(head);
+    tail -> next = head -> next;
 
     // loopReverseLinkedList(head);
 
@@ -94,8 +171,22 @@ int main() {
     // cout << "Reversed Linked List using recursion 1: ";
     // print(head);
 
-    head = recursiveReverse2LinkedList(head);
-    cout << "Reversed Linked List using recursion 2: ";
+    // head = recursiveReverse2LinkedList(head);
+    // cout << "Reversed Linked List using recursion 2: ";
+    // print(head);
+
+    // if(detectLoop(head)){
+    if(floydDetectLoop(head)){
+        cout << "Loop is present" << endl;
+    } else {
+        cout << "No loop" << endl;
+    }
+
+    Node* loop = getStartingNode(head);
+
+    cout << "loop starts at " << loop -> data << endl;
+
+    removeLoop(head);
     print(head);
 
     return 0;
